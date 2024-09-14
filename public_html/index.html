@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html lang="en">
+    <head>
+        <title>Student Enrollment Form</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script
+        src="https://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+        
+    </head>
+    <body>
+        <div class="container">
+            <h2>Student Enrollment Form</h2>
+            <form id="stdForm" method="post">
+                <div class="form-group">
+                    <span>
+                        <label for="rolNo">Roll-No:</label> <label id="rolNoMsg">
+                        </label>
+                    </span>
+                    <input type="text" class="form-control" name="rolNo" id="rolNo" placeholder="Enter Roll-No" onchange="getStd()">
+                </div>
+                <div class="form-group">
+                    <label for="fulName">Full-Name:</label>
+                    <input type="text" class="form-control" id="fulName"
+                           placeholder="Enter Full-Name" name="fulName">
+                </div>
+                <div class="form-group">
+                    <label for="claNo">Class:</label>
+                    <input type="text" class="form-control" id="claNo" placeholder="Enter Class Number" name="claNo">
+                    </div>
+                
+                <div class="form-group">
+                    <label for="birDa">Birth-Date:</label>
+                    <input type="text" class="form-control" id="birDa" placeholder="Enter Birth-Date" name="birDa">
+                    </div>
+                
+                <div class="form-group">
+                    <label for="addVal">Address:</label>
+                    <input type="text" class="form-control" id="addVal" placeholder="Enter Address" name="addVal">
+                    </div>
+                
+                <div class="form-group">
+                    <label for="enrDa">Enrollment-Date:</label>
+                    <input type="text" class="form-control" id="enrDa" placeholder="Enter Enrollment-Date" name="enrDa">
+                    </div>
+                
+                <input type="button" class="btn btn-primary" id="save" value="Save" onclick="saveData();">
+                <input type="button" class="btn btn-primary" id="change" value="Change" onclick="changeData();">
+                <input type="button" class="btn btn-primary" id="reset" value="Reset" onclick="resetForm();">
+            </form>
+        </div>
+        <script>
+
+            function validateAndGetFormData() {
+                var rolNoVar = $("#rolNo").val();
+                if (rolNoVar === "") {
+                    alert("Roll-No Required Value");
+                    $("#rolNo").focus();
+                    return "";
+                }
+                var fulNameVar = $("#fulName").val();
+                if (fulNameVar === "") {
+                    alert("Full-Name is Required Value");
+                    $("#fulName").focus();
+                    return "";
+                }
+                var claNoVar = $("#claNo").val();
+                if (claNoVar === "") {
+                    alert("Class Number is Required Value");
+                    $("#claNo").focus();
+                    return "";
+                }
+                var birDaVar = $("#birDa").val();
+                if (birDaVar === "") {
+                    alert("Birth-Date is Required Value");
+                    $("#birDa").focus();
+                    return "";
+                }
+                var addValVar = $("#addVal").val();
+                if (addValVar === "") {
+                    alert("Address is Required Value");
+                    $("#addVal").focus();
+                    return "";
+                }
+                var enrDaVar = $("#enrDa").val();
+                if (enrDaVar === "") {
+                    alert("Enrollment-Date is Required Value");
+                    $("#enrDa").focus();
+                    return "";
+                }
+                var jsonObj = {
+                    rolNo: rolNoVar,
+                    fulName: fulNameVar,
+                    claNo: claNoVar,
+                    birDa: birDaVar,
+                    addVal: addValVar,
+                    enrDa: enrDaVar
+                };
+                return JSON.stringify(jsonObj);
+            }
+
+
+            function resetForm() {
+                $("#rolNo").val("");
+                $("#fulName").val("");
+                $("#claNo").val("");
+                $("#birDa").val("");
+                $("#addVal").val("");
+                $("#enrDa").val("");
+                $("#rolNo").prop("disabled", false);
+                $("#save").prop("disabled", true);
+                $("#change").prop("disabled", true);
+                $("#reset").prop("disabled", true);
+                $("#rolNo").focus();
+            }
+
+            function saveData() {
+                //validate form date
+
+                //create JPDB request string - token, dbname, rel name...
+
+                //Execute this request
+
+                //Reset the form data
+
+                var jsonObj = validateAndGetFormData();
+                if (jsonObj === "") {
+                    return "";
+                }
+                var putReqStr = createPUTRequest("90932020|-31949219584051077|90962193",
+                        jsonObj, "STUDENT-TABLE", "SCHOOL-DB");
+                alert(putReqStr);
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommandAtGivenBaseUrl(putReqStr,
+                        "http://api.login2explore.com:5577", "/api/iml");
+                alert(JSON.stringify(resultObj));
+                jQuery.ajaxSetup({async: true});
+                resetForm();
+                $("#rolNo").focus();
+            }
+            
+            function saveRec(jsonObj) {
+                var lvData = JSON.parse(jsonObj.data);
+                localStorage.setItem("recno", lvData.rec_no);
+            }
+            
+            function getRolNoAsJsonObj() {
+                var rolNo = $("#rolNo").val();
+                var jsonStr = {
+                    rolNo: rolNo
+                };
+                return JSON.stringify(jsonStr);
+            }
+            
+            function fillData(jsonObj) {
+                
+                saveRec(jsonObj);
+                var record = JSON.parse(jsonObj.data).record;
+                $("#fulName").val(record.fulName);
+                $("#claNo").val(record.claNo);
+                $("#birDa").val(record.birDa);
+                $("#addVal").val(record.addVal);
+                $("#enrDa").val(record.enrDa);
+                
+            }
+            
+            function changeData() {
+                
+                $("#change").prop("disabled", true);
+                var jsonChg = validateAndGetFormData();
+                var updateRequest = createUPDATERecordRequest("90932020|-31949219584051077|90962193", jsonChg, "STUDENT-TABLE", "SCHOOL-DB", localStorage.getItem("recno"));
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommandAtGivenBaseUrl(updateRequest, "http://api.login2explore.com:5577", "/api/iml");
+                jQuery.ajaxSetup({async: true});
+                console.log(resultObj);
+                resetForm();
+                $("#rolNo").focus();
+                
+            }
+            
+            function getStd() {
+                
+                var rolNoJsonObj = getRolNoAsJsonObj();
+                var getRequest = createGET_BY_KEYRequest("90932020|-31949219584051077|90962193", "STUDENT-TABLE", "SCHOOL-DB", rolNoJsonObj);
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommandAtGivenBaseUrl(getRequest, "http://api.login2explore.com:5577", "/api/iml");
+                jQuery.ajaxSetup({async: true});
+                if (resultObj.status === 400) {
+                    $("#save").prop("disabled", false);
+                    $("#reset").prop("disabled", false);
+                    $("#fulName").focus();
+                } else if (resultObj.status === 200) {
+                    
+                    $("#rolNo").prop("disabled", true);
+                    fillData(resultObj);
+                    
+                    $("#change").prop("disabled", false);
+                    $("#reset").prop("disabled", false);
+                    $("#fulName").focus();
+                    
+                }
+            }
+            
+        </script>
+    </body>
+</html>
